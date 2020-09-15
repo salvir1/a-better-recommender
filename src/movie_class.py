@@ -6,8 +6,9 @@ import pickle
 import json
 import pandas as pd
 import re
+import time
 
-keys = pd.read_csv('src/keys.txt', header=None)
+keys = pd.read_csv('keys.txt', header=None)
 api_key = keys.iloc[0,1]
 
 class Movie:
@@ -19,7 +20,6 @@ class Movie:
         movielensId: str = '',
         movielens_mean_rating: float = None,
         movielens_std_rating: float = None,
-        movielens_pct_5s: float = None,
         tmdbId: str = '',
         imdbId: str = '',
         budget: int = None,
@@ -42,7 +42,6 @@ class Movie:
         self.movielensId = movielensId,
         self.movielens_mean_rating = movielens_mean_rating,
         self.movielens_std_rating = movielens_std_rating,
-        self.movielens_pct_5s = movielens_pct_5s,
         self.tmdbId = tmdbId,
         self.imdbId = imdbId,
         self.budget = budget,
@@ -59,7 +58,7 @@ class Movie:
         self.tmdb_genre_3 = tmdb_genre_3,
         self.tmdb_recommendations = tmdb_recommendations
 
-    def load_tmdb_movie(self, movielensId, movie_id):
+    def load_tmdb_features(self, movielensId, movie_id):
         mv_url = f'https://api.themoviedb.org/3/movie/{movie_id}?api_key={api_key}&language=en-US'
         r_mv = requests.get(mv_url, allow_redirects=False)
         try:
@@ -74,9 +73,6 @@ class Movie:
             self.title = dict['title']
             self.poster_path = dict['poster_path']
             self.movielensId = movielensId,
-#             self.movielens_mean_rating = movielens_mean_rating,
-#             self.movielens_std_rating = movielens_std_rating,
-#             self.movielens_pct_5s = movielens_pct_5s,
             self.tmdbId = movie_id,
             self.imdbId = dict['imdb_id'],
             self.budget = dict['budget'],
@@ -123,7 +119,13 @@ class Movie:
         except Exception as msg:
             print(self.tmdbId, 'Exception', msg)
 
-        
+    def load_movielens_features(self,mean_rating, std_rating):
+        try: 
+            self.movielens_mean_rating = mean_rating
+            self.movielens_std_rating = std_rating
+        except Exception as msg:
+            print(self.tmdbId, 'Exception', msg)
+
     def __repr__(self):
         return repr(self.__dict__)
 
@@ -135,15 +137,15 @@ class Movie:
         
 if __name__ == "__main__":
     # execute only if run as a script
-    recs = 5
-    movie_list = pd.read_csv('../data/links.csv')
-    time_test = movie_list[:recs]
-    time_test.head()
+    movie_list = pd.read_csv('../data/filtered_links.csv')
 
     movies = []
-    for i in range(len(time_test)):
+    for i in range(len(movie_list)):
+        if i % 2000:
+            time.sleep(500)
         curr_movie = Movie()
-        curr_movie.load_tmdb_movie(str(time_test.iloc[i][0]), str(time_test.iloc[i][2]))
+        curr_movie.load_tmdb_features(str(movie_list.iloc[i][0]), str(movie_list.iloc[i][2]))
+        curr_movie.load_movielens_features(str(movie_list.iloc[i][4]), str(movie_list.iloc[i][5]))
         movies.append(curr_movie)
     
     with open('../data/mv_pkl.pkl','wb') as file:
