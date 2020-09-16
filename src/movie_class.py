@@ -5,6 +5,7 @@ from lxml import html
 import pickle
 import json
 import pandas as pd
+import random
 import re
 import time
 
@@ -62,6 +63,7 @@ class Movie:
         mv_url = f'https://api.themoviedb.org/3/movie/{movie_id}?api_key={api_key}&language=en-US'
         r_mv = requests.get(mv_url, allow_redirects=False)
         try:
+            time.sleep(0.23)
             if r_mv.status_code == 200:
                 pass
 #             print(f"Success {r_mv.status_code}, {mv_url}")
@@ -90,8 +92,12 @@ class Movie:
                 self.tmdb_genre_2 = dict['genres'][1]['name']
             if len(dict['genres']) > 2:
                 self.tmdb_genre_3 = dict['genres'][2]['name']
-        
+        except Exception as msg:
+            print(self.tmdbId, 'Exception', msg)
+
             # Load cast info
+        try:
+            time.sleep(0.3)
             cast_url = f'https://api.themoviedb.org/3/movie/{movie_id}/credits?api_key={api_key}&language=en-US'
             r_cast = requests.get(cast_url, allow_redirects=False)
             if r_cast.status_code == 200:
@@ -103,8 +109,12 @@ class Movie:
             cast_soup = BeautifulSoup(r_cast.content, features="lxml")
             cast_dict = json.loads(cast_soup.get_text())
             self.cast = cast_dict['cast'][:10]
+        except Exception as msg:
+            print(self.tmdbId, 'Exception', msg)
 
             #Load TMDB recommendations
+        try:
+            time.sleep(0.33)
             recs_url = f'https://api.themoviedb.org/3/movie/{movie_id}/recommendations?api_key={api_key}&language=en-US'
             r_recs = requests.get(recs_url, allow_redirects=False)
             if r_recs.status_code == 200:
@@ -141,12 +151,13 @@ if __name__ == "__main__":
 
     movies = []
     for i in range(len(movie_list)):
-        if i % 2000:
-            time.sleep(500)
+        time.sleep(random.randint(0,2))
         curr_movie = Movie()
         curr_movie.load_tmdb_features(str(movie_list.iloc[i][0]), str(movie_list.iloc[i][2]))
         curr_movie.load_movielens_features(str(movie_list.iloc[i][4]), str(movie_list.iloc[i][5]))
         movies.append(curr_movie)
-    
-    with open('../data/mv_pkl.pkl','wb') as file:
-        pickle.dump(movies, file)
+
+        if i % 200 == 0:
+            print(i, curr_movie.movielensId)
+            with open('../data/mv_pkl.pkl','wb') as file:
+                pickle.dump(movies, file)
