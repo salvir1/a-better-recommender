@@ -97,7 +97,7 @@ class Movie:
 
             # Load cast info
         try:
-            time.sleep(0.3)
+            time.sleep(0.4)
             cast_url = f'https://api.themoviedb.org/3/movie/{movie_id}/credits?api_key={api_key}&language=en-US'
             r_cast = requests.get(cast_url, allow_redirects=False)
             if r_cast.status_code == 200:
@@ -136,6 +136,29 @@ class Movie:
         except Exception as msg:
             print(self.tmdbId, 'Exception', msg)
 
+    def convert_to_dict(self):
+        return {
+        'title' : self.title,
+        'poster_path' : self.poster_path,
+        'movielensId' : int(float('0'+self.movielensId[0])),
+        'movielens_mean_rating' : self.movielens_mean_rating,
+        'movielens_std_rating' : self.movielens_std_rating,
+        'tmdbId' : self.tmdbId[0],
+        'imdbId' : self.imdbId[0],
+        'budget' : self.budget[0],
+        'revenue' : self.revenue[0],
+        'tmdb_popularity' : self.tmdb_popularity[0],
+        'tmdb_vote_average' : self.tmdb_vote_average[0],
+        'tmdb_vote_count' : self.tmdb_vote_count[0],
+        'release_date' : pd.to_datetime(self.release_date[0]).year,
+        'tmdb_overview' : self.tmdb_overview[0],
+        'tmdb_original_ln' : self.tmdb_original_ln,
+        'cast' : self.cast,
+        'tmdb_genre_1' : self.tmdb_genre_1,
+        'tmdb_genre_2' : self.tmdb_genre_2,
+        'tmdb_genre_3' : self.tmdb_genre_3
+        }
+    
     def __repr__(self):
         return repr(self.__dict__)
 
@@ -150,8 +173,8 @@ if __name__ == "__main__":
     movie_list = pd.read_csv('../data/filtered_links.csv')
 
     movies = []
-    for i in range(len(movie_list)):
-        time.sleep(random.randint(0,2))
+    for i in range(14600,len(movie_list)):
+        time.sleep(random.randint(0,3))
         curr_movie = Movie()
         curr_movie.load_tmdb_features(str(movie_list.iloc[i][0]), str(movie_list.iloc[i][2]))
         curr_movie.load_movielens_features(str(movie_list.iloc[i][4]), str(movie_list.iloc[i][5]))
