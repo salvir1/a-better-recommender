@@ -1,0 +1,26 @@
+    <!DOCTYPE html>
+    <html>
+      <head>
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width">
+        <title>A Better Recommender</title>
+      </head>
+      <body>
+        <h2>Here are twelve movie recommendations. We'd like to know how well they align with your tastes.</h2>
+        <div>
+          <form action="/recommendations" method='POST' >
+            <input type="text" name="not_liked"> How many have you seen and didn't like?</input><br/>
+            <input type="text" name="saw_liked"> How many have you seen and liked?</input><br/>
+            <input type="text" name="good_rec"> How many have you not seen, but would like to see?</input><br/>
+            <input type="submit" />
+          </form>
+        </div>
+
+        <div class='posters' >
+            <a href="https://www.themoviedb.org/movie/{{links.link_suffix}}">
+              <img src='http://image.tmdb.org/t/p/w154/{{posters.poster_var}}' title={{title.title}}>
+            </a>
+        </div>
+
+      </body>
+    </html>
