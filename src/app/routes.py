@@ -23,9 +23,25 @@ def home():
         </body>
     </html>
     '''
-@app.route('/recommendations')
+@app.route('/recommendations', methods = ['GET', 'POST'])
 def recommendations():
+
     posters = {'poster_var' : '/uXDfjJbdP4ijW5hWSBrPrlKpxab.jpg'}
     links = {'link_suffix' : '862-toy-story'}
     title = {'title' : "Toy Story"}
     return render_template('recommendations.html', posters=posters, links=links, title=title)
+
+@app.route('/scores')
+def scores():
+    not_liked = request.form['not_liked']
+    saw_liked = request.form['saw_liked'] 
+    good_rec = request.form['good_rec']
+
+    page = 'Thanks for telling us how we did with our recommendations. Would you like to see more?'
+    # make html that gives us a button to go back to recommendations page.
+    go_to_recs = '''
+        <form action="/recommendations" >
+            <input type="submit" value = "More recommendations"/>
+        </form>
+    '''
+    return go_to_recs
